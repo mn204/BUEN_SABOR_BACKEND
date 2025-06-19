@@ -1,184 +1,179 @@
-# El Buen Sabor 🍽️
 
-Sistema integral de gestión para un emprendimiento gastronómico con delivery, que moderniza la atención al cliente y optimiza las operaciones internas del negocio. Desarrollado como proyecto final académico.
+# 🍽️ El Buen Sabor - Backend
+
+Sistema integral de gestión para un emprendimiento gastronómico con delivery, que moderniza la atención al cliente y optimiza las operaciones internas del negocio. Desarrollado como **proyecto final académico**.
+
+---
+
+## 🧠 Descripción General
+
+Este backend gestiona operaciones clave como pedidos, facturación, autenticación, notificaciones en tiempo real y estadísticas, brindando soporte completo a la aplicación web de **El Buen Sabor**, tanto para clientes como para empleados y administradores.
 
 ---
 
 ## 🛠️ Tecnologías utilizadas
 
-### Backend
-- Java 17 + Spring Boot
-- Gradle
-- MySQL
-- Firebase Authentication (servicio de autenticación)
-- Cloudinary (almacenamiento de imágenes)
-- Checkout Pro de Mercado Pago (integración de pagos)
-
-### Frontend
-- React 18
-- Vite
-- TypeScript
-- Bootstrap 5
-- React Bootstrap
+- Java 17  
+- Spring Boot 3  
+- Spring Security  
+- Spring Data JPA  
+- Gradle  
+- MySQL  
+- Firebase Authentication  
+- MapStruct  
+- Cloudinary  
+- Mercado Pago - Checkout Pro  
+- Apache POI (Excel)  
+- OpenPDF (PDF)  
+- Swagger (en desarrollo)  
+- WebSockets (en desarrollo)  
+- Lombok  
+- Bootstrap - React-Bootstrap *(lado frontend complementario)*
 
 ---
 
 ## 🧩 Estructura del proyecto
 
-El Proyecto esta dvidido en dos carpetas principales:
-
-- `BUEN_SABOR_BACKEND/` → Contiene el backend implementado en Java Spring Boot.
-- `BUEN_SABOR_FRONTEND/` → Contiene el frontend desarrollado con React + Vite.( encontrarlo en https://github.com/mn204/BUEN_SABOR_FRONTEND )
-
+```
+📦 src
+├── 📁 controller         → Maneja las solicitudes HTTP (REST API)
+│   └── 📁 advice         → Manejo global de errores y excepciones
+├── 📁 service            → Lógica de negocio
+│   └── 📁 impl           → Implementaciones concretas
+├── 📁 repository         → Acceso a la base de datos (JPA)
+├── 📁 model              → Entidades del dominio
+├── 📁 dto                → Transferencia de datos entre capas
+├── 📁 mapper             → Mapeos con MapStruct
+├── 📁 exceptions         → Excepciones personalizadas
+├── 📁 security           → Seguridad y autenticación vía Firebase
+```
 ---
 
-## 🚀 Instrucciones de instalación y ejecución
+## 🚀 Instalación y ejecución
 
 ### 1. Base de datos
 
-1. Iniciar el motor de base de datos MySQL.
-2. Crear una base de datos llamada `buen_sabor`.
-3. Modificar las credenciales en el archivo `application.properties` ubicado en:
+- Iniciar MySQL  
+- Crear la base de datos: `buen_sabor2`
 
-```
-BUEN_SABOR_BACKEND/src/main/resources/application.properties
-```
+### 2. Configuración
 
-Con el siguiente contenido (actualizando usuario y contraseña):
+Editar el archivo `src/main/resources/application.properties` con:
 
 ```properties
-spring.application.name=BUEN_SABOR_BACKEND
-
-spring.datasource.url=jdbc:mysql://localhost:3306/buen_sabor?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+spring.datasource.url=jdbc:mysql://localhost:3306/buen_sabor2?createDatabaseIfNotExist=true
 spring.datasource.username=root
 spring.datasource.password=
-
 spring.jpa.database-platform=org.hibernate.dialect.MySQL8Dialect
-spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
-
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
 spring.jpa.hibernate.ddl-auto=update
 
 spring.servlet.multipart.max-file-size=5MB
 spring.servlet.multipart.max-request-size=5MB
-
 server.port=8080
 ```
 
-4. Contactar a un integrante del grupo para obtener el archivo `firebase-service-account-buen-sabor.json` y colocarlo en:
+⚠️ Ajustar usuario y contraseña según configuración local.
+
+### 3. Firebase
+
+Colocar el archivo `firebase-service-account-buen-sabor.json` en:
 
 ```
-BUEN_SABOR_BACKEND/src/main/resources/firebase/
+src/main/resources/firebase/
 ```
 
-5. Desde la carpeta `BUEN_SABOR_BACKEND`, ejecutar:
+### 4. Build y ejecución
 
 ```bash
 ./gradlew build
+./gradlew bootRun
 ```
 
-6. Correr el proyecto desde tu IDE o terminal. Esto creará las tablas en la base de datos.
+### 5. Carga de datos
 
-7. Ejecutar manualmente el script `script_datos1.sql` en la base de datos.
-8. Luego ejecutar manualmente el script `script_datos2.sql` en la base de datos.
-9. Luego ejecutar manualmente el script `script_datos3.sql` en la base de datos.
-10. Por ultimo ejecutar manualmente el script `script_datos4.sql` en la base de datos.
+Ejecutar los siguientes scripts SQL en orden:
 
----
-
-### 2. Frontend
-
-1. Abrir una terminal y posicionarse dentro de la carpeta `BUEN_SABOR_FRONTEND`.
-2. Ejecutar:
-
-```bash
-npm install
-```
-
-3. Luego correr la app:
-
-```bash
-npm run dev
-```
-
-La aplicación quedará disponible en `http://localhost:5173`.
+- `script_datos1.sql`  
+- `script_datos2.sql`  
+- `script_datos3.sql`  
+- `script_datos4.sql`
 
 ---
 
----
+## 📚 Documentación de la API
 
-## 📦 Descripción general de los módulos implementados
-
-El sistema cuenta con una arquitectura modular, donde cada sección está diseñada para cubrir una necesidad específica del negocio gastronómico. A continuación, se describen brevemente los principales módulos desarrollados:
-
-- **Gestión de usuarios**  
-  Registro, autenticación y administración de usuarios, diferenciando entre clientes y empleados. Soporte para múltiples roles (Administrador, Cajero, Cocinero, Delivery).
-
-- **Dashboard administrativo**  
-  Panel exclusivo para administradores con estadísticas clave, reportes y acceso total a la gestión del sistema.
-
-- **Panel de empleados**  
-  Interfaz personalizada para cada tipo de empleado (Cajero, Cocinero, Delivery), con funcionalidades adaptadas según el rol.
-
-- **Catálogo y compra de productos**  
-  Vista orientada al cliente para explorar el menú, ver detalles de los productos y agregar al carrito.
-
-- **Carrito de compras y confirmación de pedidos**  
-  Proceso completo de compra, permitiendo revisar el pedido, seleccionar método de entrega y confirmar.
-
-- **Gestión de productos, insumos y categorías**  
-  ABM (Alta, Baja, Modificación) de artículos manufacturados, insumos y sus respectivas categorías.
-
-- **Control de stock de insumos**  
-  Actualización automática del stock según el consumo registrado en los pedidos.
-
-- **Estadísticas y reportes**  
-  Visualización de métricas relevantes como ventas por día, productos más vendidos y actividad por empleado.
-
-- **Historial de pedidos**  
-  Acceso al historial de pedidos por parte de clientes y empleados, con detalles y estados actualizados.
-
-- **Módulo de cocina**  
-  Gestión centralizada de pedidos en preparación, permitiendo marcar estados como “En preparación” o “Listo”.
-
-- **Módulo de delivery**  
-  Asignación y seguimiento de pedidos en reparto, con actualización de estado y confirmación de entrega.
-
-- **Gestión de promociones**  
-  Creación y administración de promociones o combos con descuentos aplicables al catálogo.
-
-Cada módulo se integra de forma segura y dinámica, garantizando una experiencia fluida para cada tipo de usuario del sistema.
+🔧 En desarrollo  
+Integración con Swagger UI para documentación interactiva.
 
 ---
 
-## 👤 Integrantes del grupo
+## 📈 Módulos implementados
 
-- Lucas Gonzalez
-- Juan Cruz Gonzalez
-- Manuel Rodríguez
-- Sebatian Luna
-- Juan Cruz Vargas
+- Gestión de usuarios y roles  
+- Paneles separados para administrador, empleados y clientes  
+- Gestión de productos, insumos, categorías  
+- Carrito y pedidos  
+- Facturación (PDF)  
+- Exportación de datos (Excel)  
+- Estadísticas  
+- Gestión de cocina y delivery  
+- Promociones  
+
+---
+
+## 👥 Autores
+
+- Lucas Gonzalez  
+- Juan Cruz Gonzalez  
+- Manuel Rodríguez  
+- Sebatian Luna  
+- Juan Cruz Vargas  
 
 ---
 
 ## 🧪 Cuentas de prueba
 
 ### Administradores
-- `admin@buensa.com` / `123456`
+- `admin@buensa.com` / `123456`  
 - `mln204manutup@gmail.com` / `123456`
 
 ### Sucursal 1
-- Cajero: `cajero@buensa.com` / `123456`
-- Cocinero: `cocinero@buensa.com` / `123456`
-- Delivery: `delivery@buensa.com` / `123456`
+- Cajero: `cajero@buensa.com` / `123456`  
+- Cocinero: `cocinero@buensa.com` / `123456`  
+- Delivery: `delivery@buensa.com` / `123456`  
 
 ### Sucursal 2
-- Cajero: `cajero2@buensa.com` / `123456A.a`
-- Cocinero: `cocinero2@buensa.com` / `123456A.a`
+- Cajero: `cajero2@buensa.com` / `123456A.a`  
+- Cocinero: `cocinero2@buensa.com` / `123456A.a`  
 - Delivery: `delivery2@buensa.com` / `123456A.a`
 
 ### Clientes
-- `clientebuensabor@gmail.com` / `123456`
-- `luis@hotmail.com` / `123456A.a`
+- `clientebuensabor@gmail.com` / `123456`  
+- `luis@hotmail.com` / `123456A.a`  
 - `max@hotmail.com` / `123456A.a`
+
+---
+
+## 🤝 Contribuciones
+
+1. Realizar un fork del repositorio  
+2. Crear rama:  
+```bash
+git checkout -b feature/nueva-funcionalidad
+```
+3. Commit de los cambios:  
+```bash
+git commit -m 'Agregar nueva funcionalidad'
+```
+4. Push a la rama:  
+```bash
+git push origin feature/nueva-funcionalidad
+```
+5. Crear Pull Request
+
+---
+
+## 📄 Licencia
+
+Desarrollado como proyecto académico  
+**Laboratorio de Computación 4 - UTN**
