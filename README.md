@@ -26,7 +26,6 @@ Este backend gestiona operaciones clave como pedidos, facturaci√≥n, autenticaci√
 - Apache POI (Excel)  
 - OpenPDF (PDF)  
 - Swagger (en desarrollo)  
-- WebSockets (en desarrollo)  
 - Lombok  
 - Bootstrap - React-Bootstrap *(lado frontend complementario)*
 
