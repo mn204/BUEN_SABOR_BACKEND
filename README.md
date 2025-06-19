@@ -28,7 +28,7 @@ Sistema integral de gestión para un emprendimiento gastronómico con delivery, 
 El Proyecto esta dvidido en dos carpetas principales:
 
 - `BUEN_SABOR_BACKEND/` → Contiene el backend implementado en Java Spring Boot.
-- `BUEN_SABOR_FRONTEND/` → Contiene el frontend desarrollado con React + Vite.(encontrarlo en `https://github.com/mn204/BUEN_SABOR_FRONTEND`)
+- `BUEN_SABOR_FRONTEND/` → Contiene el frontend desarrollado con React + Vite.( encontrarlo en https://github.com/mn204/BUEN_SABOR_FRONTEND )
 
 ---
 
