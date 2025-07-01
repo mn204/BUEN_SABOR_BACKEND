@@ -25,7 +25,7 @@ Este backend gestiona operaciones clave como pedidos, facturación, autenticaci�
 - Mercado Pago - Checkout Pro  
 - Apache POI (Excel)  
 - OpenPDF (PDF)  
-- Swagger (en desarrollo)  
+- Swagger  
 - Lombok  
 - Bootstrap - React-Bootstrap *(lado frontend complementario)*
 
@@ -101,8 +101,7 @@ Ejecutar los siguientes scripts SQL en orden:
 
 ## 📚 Documentación de la API
 
-🔧 En desarrollo  
-Integración con Swagger UI para documentación interactiva.
+Swagger UI para documentación interactiva.
 
 ---
 
