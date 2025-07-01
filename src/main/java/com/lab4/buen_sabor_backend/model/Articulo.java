@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,15 +22,15 @@ public class Articulo extends Master {
     private Double precioVenta;
 
 
-    @OneToMany(mappedBy = "articulo", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "articulo", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval = true)
     private Set<ImagenArticulo> imagenes;
 
     @ManyToOne
     @JoinColumn(name = "unidad_medida_id")
     private UnidadMedida unidadMedida;
 
-    @OneToMany(mappedBy = "articulo", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<DetallePromocion> detallesPromocion = new HashSet<>();
+    @OneToMany(mappedBy = "articulo", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    private List<DetallePromocion> detallesPromocion = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "categoria_id")

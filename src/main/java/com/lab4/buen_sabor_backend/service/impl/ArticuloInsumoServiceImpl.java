@@ -2,14 +2,20 @@ package com.lab4.buen_sabor_backend.service.impl;
 
 import com.lab4.buen_sabor_backend.model.*;
 import com.lab4.buen_sabor_backend.repository.ArticuloInsumoRepository;
+import com.lab4.buen_sabor_backend.repository.CategoriaRepository;
 import com.lab4.buen_sabor_backend.repository.DetalleArticuloManufacturadoRepository;
+import com.lab4.buen_sabor_backend.service.PromocionService;
 import com.lab4.buen_sabor_backend.repository.SucursalInsumoRepository;
 import com.lab4.buen_sabor_backend.service.ArticuloInsumoService;
 import com.lab4.buen_sabor_backend.service.ArticuloManufacturadoService;
+import com.lab4.buen_sabor_backend.service.impl.specification.ArticuloInsumoSpecification;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -25,14 +31,50 @@ public class ArticuloInsumoServiceImpl extends MasterServiceImpl<ArticuloInsumo,
     private final DetalleArticuloManufacturadoRepository detalleArticuloManufacturadoRepository;
     private final SucursalInsumoRepository sucursalInsumoRepository;
     private final ArticuloManufacturadoService articuloManufacturadoService;
+    private final CategoriaRepository categoriaRepository;
+    private final PromocionService promocionService;
 
     @Autowired
-    public ArticuloInsumoServiceImpl(ArticuloInsumoRepository articuloInsumoRepository, DetalleArticuloManufacturadoRepository detalleArticuloManufacturadoRepository, SucursalInsumoRepository sucursalInsumoRepository, ArticuloManufacturadoService articuloManufacturadoService) {
+    public ArticuloInsumoServiceImpl(ArticuloInsumoRepository articuloInsumoRepository, DetalleArticuloManufacturadoRepository detalleArticuloManufacturadoRepository,
+                                     SucursalInsumoRepository sucursalInsumoRepository, ArticuloManufacturadoService articuloManufacturadoService,
+                                     PromocionService promocionService, CategoriaRepository categoriaRepository) {
         super(articuloInsumoRepository);
         this.articuloInsumoRepository = articuloInsumoRepository;
         this.detalleArticuloManufacturadoRepository = detalleArticuloManufacturadoRepository;
         this.sucursalInsumoRepository = sucursalInsumoRepository;
         this.articuloManufacturadoService = articuloManufacturadoService;
+        this.promocionService = promocionService;
+        this.categoriaRepository = categoriaRepository;
+    }
+
+    @Override
+    public Page<ArticuloInsumo> filtrar(String denominacion, Long categoriaId, Long unidadMedidaId, Boolean eliminado,
+                                        Double precioCompraMin, Double precioCompraMax,
+                                        Double precioVentaMin, Double precioVentaMax,
+                                        Pageable pageable) {
+
+        Set<Long> categoriaIds = new HashSet<>();
+        if (categoriaId != null) {
+            Categoria categoria = categoriaRepository.findById(categoriaId).orElse(null);
+            if (categoria != null) {
+                obtenerSubcategoriasRecursivo(categoria, categoriaIds);
+                categoriaIds.add(categoriaId);
+            }
+        }
+
+        Specification<ArticuloInsumo> spec = ArticuloInsumoSpecification.filtrar(
+                denominacion, categoriaIds, unidadMedidaId, eliminado,
+                precioCompraMin, precioCompraMax, precioVentaMin, precioVentaMax
+        );
+
+        return articuloInsumoRepository.findAll(spec, pageable);
+    }
+
+    private void obtenerSubcategoriasRecursivo(Categoria categoria, Set<Long> ids) {
+        for (Categoria sub : categoria.getSubcategorias()) {
+            ids.add(sub.getId());
+            obtenerSubcategoriasRecursivo(sub, ids);
+        }
     }
 
     @Override
@@ -127,7 +169,7 @@ public class ArticuloInsumoServiceImpl extends MasterServiceImpl<ArticuloInsumo,
     @Transactional
     public List<ArticuloInsumo> findAllNoEsParaElaborarByDenominacion(String denominacion) {
         logger.info("Obteniendo todos los ArticuloInsumo que son para elaborar");
-        return articuloInsumoRepository.findByEsParaElaborarFalseAndDenominacionContainingIgnoreCase(denominacion);
+        return articuloInsumoRepository.findByEsParaElaborarFalseAndDenominacionContainingIgnoreCaseAndEliminadoFalse(denominacion);
     }
 
     @Override
@@ -182,7 +224,7 @@ public class ArticuloInsumoServiceImpl extends MasterServiceImpl<ArticuloInsumo,
             double total = 0;
 
             for (DetalleArticuloManufacturado det : manufacturado.getDetalles()) {
-                total += det.getCantidad() * det.getArticuloInsumo().getPrecioVenta();
+                total += det.getCantidad() * det.getArticuloInsumo().getPrecioCompra();
 
                 if (det.getArticuloInsumo().getId().equals(id)) {
                     det.setArticuloInsumo(entity); // Actualiza el insumo si es el editado
@@ -191,10 +233,29 @@ public class ArticuloInsumoServiceImpl extends MasterServiceImpl<ArticuloInsumo,
 
             // Evita división por cero
             if (total > 0) {
-                double ganancia = ((manufacturado.getPrecioVenta() - total) * 100) / total;
-                articuloManufacturadoService.updateSpecial(manufacturado.getId(), manufacturado, ganancia);
+                articuloManufacturadoService.update(manufacturado.getId(), manufacturado);
             } else {
                 logger.warn("El costo total del manufacturado {} es cero, no se puede calcular la ganancia", manufacturado.getId());
+            }
+        }
+        List<Promocion> promociones = promocionService.findByDetalles_Articulo_Id(id);
+
+        for (Promocion promocion : promociones) {
+            double total = 0;
+
+            for (DetallePromocion det : promocion.getDetalles()) {
+                total += det.getCantidad() * det.getArticulo().getPrecioVenta();
+
+                if (det.getArticulo().getId().equals(id)) {
+                    det.setArticulo(entity); // Actualiza el insumo si es el editado
+                }
+            }
+
+            // Evita división por cero
+            if (total > 0) {
+                promocionService.update(promocion.getId(), promocion);
+            } else {
+                logger.warn("El costo total del manufacturado {} es cero, no se puede calcular el descuento", promocion.getId());
             }
         }
 

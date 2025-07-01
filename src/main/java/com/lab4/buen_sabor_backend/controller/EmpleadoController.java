@@ -1,12 +1,15 @@
 package com.lab4.buen_sabor_backend.controller;
 
 import com.lab4.buen_sabor_backend.dto.EmpleadoDTO;
+import com.lab4.buen_sabor_backend.dto.UsuarioDTO;
 import com.lab4.buen_sabor_backend.mapper.EmpleadoMapper;
 import com.lab4.buen_sabor_backend.model.Cliente;
 import com.lab4.buen_sabor_backend.model.Empleado;
 import com.lab4.buen_sabor_backend.model.enums.Rol;
 import com.lab4.buen_sabor_backend.repository.EmpleadoRepository;
 import com.lab4.buen_sabor_backend.service.EmpleadoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/empleado")
 @CrossOrigin(origins = "*")
+@Tag(name = "Empleado", description = "Gestión de empleados de sucursal")
 public class EmpleadoController extends MasterControllerImpl<Empleado, EmpleadoDTO, Long> implements MasterController<EmpleadoDTO, Long> {
 
     private static final Logger logger = LoggerFactory.getLogger(EmpleadoController.class);
@@ -45,7 +49,7 @@ public class EmpleadoController extends MasterControllerImpl<Empleado, EmpleadoD
         return empleadoMapper.toDTO(entity);
     }
 
-
+    @Operation(summary = "Buscar empleado por usuario", description = "Obtiene los datos del empleado a partir del ID del usuario asociado")
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<EmpleadoDTO> getByUsuarioId(@PathVariable Long usuarioId) {
         return empleadoService.findByUsuarioId(usuarioId)
@@ -53,6 +57,15 @@ public class EmpleadoController extends MasterControllerImpl<Empleado, EmpleadoD
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Buscar empleado por DNI", description = "Obtiene los datos del empleado según su DNI")
+    @GetMapping("/dni/{dni}")
+    public ResponseEntity<EmpleadoDTO> getByDni(@PathVariable String dni) {
+        return empleadoService.findByDni(dni)
+                .map(empleado -> ResponseEntity.ok(empleadoMapper.toDTO(empleado)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @Operation(summary = "Empleados por sucursal y rol", description = "Obtiene empleados de una sucursal según el rol")
     @GetMapping("/sucursal/{sucursalId}/rol/{rol}")
     public ResponseEntity<List<EmpleadoDTO>> getBySucursalAndRol(@PathVariable Long sucursalId, @PathVariable Rol rol) {
         List<Empleado> empleados = empleadoService.findBySucursalIdAndRol(sucursalId, rol);
@@ -62,6 +75,7 @@ public class EmpleadoController extends MasterControllerImpl<Empleado, EmpleadoD
         return ResponseEntity.ok(empleadosDTO);
     }
 
+    @Operation(summary = "Filtrar empleados", description = "Filtra empleados por nombre, email, rol, sucursal y estado")
     @GetMapping("/filtrados")
     public ResponseEntity<Page<EmpleadoDTO>> obtenerEmpleadosFiltrados(
             @RequestParam(required = false) String nombre,
@@ -90,6 +104,23 @@ public class EmpleadoController extends MasterControllerImpl<Empleado, EmpleadoD
         Page<EmpleadoDTO> result = empleados.map(empleadoMapper::toDTO);
 
         return ResponseEntity.ok(result);
+    }
+
+    // Nuevos endpoints para eliminación y alta completa
+    @Operation(summary = "Eliminar empleado", description = "Elimina lógicamente un empleado y su usuario asociado")
+    @DeleteMapping("/eliminar/{id}")
+    public ResponseEntity<Void> eliminarEmpleado(@PathVariable Long id) {
+        empleadoService.eliminarEmpleado(id);
+        logger.info("Empleado y usuario con id {} eliminados lógicamente.", id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Reactivar empleado", description = "Da de alta nuevamente a un empleado previamente eliminado")
+    @PutMapping("/darAltaEmpleado/{id}")
+    public ResponseEntity<Void> darDeAltaEmpleado(@PathVariable Long id) {
+        empleadoService.darDeAltaEmpleado(id);
+        logger.info("Empleado y usuario con id {} dados de alta lógicamente.", id);
+        return ResponseEntity.noContent().build();
     }
 
 }

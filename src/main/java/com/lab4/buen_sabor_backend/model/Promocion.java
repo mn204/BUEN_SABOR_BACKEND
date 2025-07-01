@@ -6,7 +6,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.*;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -22,12 +24,14 @@ public class Promocion extends Master {
     private LocalTime horaDesde;
     private LocalTime horaHasta;
     private String descripcionDescuento;
+    private Double descuento;
     private Double precioPromocional;
 
     @Enumerated(EnumType.STRING)
     private TipoPromocion tipoPromocion;
 
     private Boolean activa = false;
+
 
     @ManyToMany
     @JoinTable(
@@ -38,10 +42,10 @@ public class Promocion extends Master {
     @JsonIgnore
     private Set<Sucursal> sucursales = new HashSet<>();
 
-    @OneToMany(mappedBy = "promocion", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "promocion", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval = true)
     private Set<ImagenPromocion> imagenes = new HashSet<>();
 
-    @OneToMany(mappedBy = "promocion", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<DetallePromocion> detalles = new HashSet<>();
+    @OneToMany(mappedBy = "promocion", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval = true)
+    private List<DetallePromocion> detalles = new ArrayList<>();
 }
 

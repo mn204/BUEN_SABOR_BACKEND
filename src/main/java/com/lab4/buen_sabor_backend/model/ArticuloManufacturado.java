@@ -15,11 +15,12 @@ import java.util.*;
 public class ArticuloManufacturado extends Articulo {
 
     private String descripcion;
+    private Double ganancia;
     private Integer tiempoEstimadoMinutos;
     private String preparacion;
 
-    @OneToMany(mappedBy = "articuloManufacturado", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<DetalleArticuloManufacturado> detalles = new HashSet<>();
+    @OneToMany(mappedBy = "articuloManufacturado", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval = true)
+    private List<DetalleArticuloManufacturado> detalles = new ArrayList<>();
 
 }
 

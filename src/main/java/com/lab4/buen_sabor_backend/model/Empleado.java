@@ -21,6 +21,9 @@ public class Empleado extends Master{
     private String telefono;
     private LocalDate fechaNacimiento;
 
+    @Column(unique = true)
+    private String dni;
+
 
     // Relación 1:1 con UsuarioEmpleado
     @OneToOne(cascade = CascadeType.ALL)
@@ -28,11 +31,11 @@ public class Empleado extends Master{
     private Usuario usuario;
 
     // Relación ManyToOne con Domicilio
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn(name = "domicilio_id")
     private Domicilio domicilio;
 
-    @OneToMany(mappedBy = "empleado", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "empleado")
     private List<Pedido> pedidos = new ArrayList<>();
 
     @ManyToOne

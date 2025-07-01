@@ -2,6 +2,7 @@ package com.lab4.buen_sabor_backend.service.MercadoPago;
 
 import com.lab4.buen_sabor_backend.model.MercadoPago.PreferenceMP;
 import com.lab4.buen_sabor_backend.model.Pedido;
+import com.lab4.buen_sabor_backend.model.enums.TipoEnvio;
 import com.mercadopago.MercadoPagoConfig;
 import com.mercadopago.client.preference.PreferenceBackUrlsRequest;
 import com.mercadopago.client.preference.PreferenceClient;
@@ -25,14 +26,16 @@ public class MercadoPagoServiceImpl implements MercadoPagoService { // ⚠️ AQ
     public PreferenceMP getPreferenciaIdMercadoPago(Pedido pedido) {
         try {
             MercadoPagoConfig.setAccessToken("APP_USR-7115001971388140-050722-baace1bc7839f6490b933b2685a0a38d-2430217802");
+            PreferenceItemRequest itemRequest;
+            double costoFinal = pedido.getTotal();
 
-            PreferenceItemRequest itemRequest = PreferenceItemRequest.builder()
+            itemRequest = PreferenceItemRequest.builder()
                     .id(String.valueOf(pedido.getId()))
                     .title("Articulos")
                     .description("Pedido realizado desde el carrito de compras")
                     .quantity(1)
                     .currencyId("ARS")
-                    .unitPrice(BigDecimal.valueOf(pedido.getTotal()))
+                    .unitPrice(BigDecimal.valueOf(costoFinal))
                     .build();
 
             List<PreferenceItemRequest> items = new ArrayList<>();
@@ -47,7 +50,7 @@ public class MercadoPagoServiceImpl implements MercadoPagoService { // ⚠️ AQ
             System.out.println("Pedido ID: " + pedido.getId());
 
             PreferenceRequest preferenceRequest = PreferenceRequest.builder()
-                    .notificationUrl("https://8c3a-2803-9800-9849-7c6d-e12c-58b2-7496-f88f.ngrok-free.app/api/webhook")
+                    .notificationUrl("https://5ab5-2803-9800-9847-7bee-acf8-f71f-8bb-9a75.ngrok-free.app/api/webhook")
                     .externalReference(String.valueOf(pedido.getId()))
                     .items(items)
                     .backUrls(backURL)
